@@ -1,0 +1,17 @@
+[package]
+name = "polars-ta"
+version = "0.1.0"
+edition = "2021"
+description = "Technical analysis indicators for Polars DataFrames"
+license = "MIT"
+repository = "https://github.com/noahbclarkson/polars-ta"
+keywords = ["polars", "technical-analysis", "finance", "trading", "indicators"]
+categories = ["science", "finance"]
+
+[dependencies]
+polars = { version = "0.37", features = ["lazy", "ndarray", "temporal", "serde", "dynamic_group_by", "abs", "diff", "pct_change", "rolling_window", "ewma", "round_series", "cross_join"] }
+anyhow = "1.0"
+thiserror = "1"
+
+[dev-dependencies]
+# none needed
