@@ -45,6 +45,7 @@ pub mod bollinger;
 pub mod obv;
 pub mod roc;
 pub mod frac_diff;
+pub mod indicators;
 
 // Re-export main types and functions
 pub use ema::ema;
@@ -56,3 +57,10 @@ pub use bollinger::{bollinger, bollinger_20_2, BollingerResult};
 pub use obv::obv;
 pub use roc::roc;
 pub use frac_diff::frac_diff_ffd;
+
+// Re-export from indicators module (extracted from krypto)
+pub use indicators::{
+    ema_12, ema_20, ema_50, ema_200,
+    macd as macd_indicators, rsi_14 as rsi_14_indicators, atr_14 as atr_14_indicators, true_range,
+    MacdResult as MacdResultIndicators,
+};
