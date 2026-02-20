@@ -74,6 +74,10 @@ pub mod frac_diff;
 pub mod stochastic;
 pub mod vwap;
 pub mod adx;
+pub mod cci;
+pub mod williams_r;
+pub mod cmf;
+pub mod psar;
 pub mod indicators;
 
 // Re-export main types and functions
@@ -89,6 +93,10 @@ pub use frac_diff::frac_diff_ffd;
 pub use stochastic::{stochastic, stochastic_14_3, StochasticResult};
 pub use vwap::{vwap, rolling_vwap};
 pub use adx::{adx, adx_14, AdxResult};
+pub use cci::{cci, cci_20};
+pub use williams_r::{williams_r, williams_r_14};
+pub use cmf::{cmf, cmf_20};
+pub use psar::{psar, psar_default};
 
 // Re-export from indicators module (extracted from krypto)
 pub use indicators::{

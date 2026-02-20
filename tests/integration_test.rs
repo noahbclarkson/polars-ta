@@ -318,6 +318,153 @@ fn test_frac_diff_has_some_valid_values() {
     assert!(has_valid, "Frac diff should produce some valid values");
 }
 
+// ==================== CCI Tests ====================
+
+#[test]
+fn test_cci_returns_correct_length() {
+    let df = create_test_data();
+    let high = df.column("high").unwrap();
+    let low = df.column("low").unwrap();
+    let close = df.column("close").unwrap();
+    
+    let cci_result = cci_20(high, low, close).unwrap();
+    
+    assert_eq!(cci_result.len(), close.len(), "CCI should have same length as input");
+}
+
+#[test]
+fn test_cci_reasonable_values() {
+    let df = create_test_data();
+    let high = df.column("high").unwrap();
+    let low = df.column("low").unwrap();
+    let close = df.column("close").unwrap();
+    
+    let cci_result = cci(high, low, close, 5).unwrap();
+    let cci_ca = cci_result.f64().unwrap();
+    
+    // CCI can be any value but shouldn't be NaN where we have data
+    let mut has_valid = false;
+    for i in 5..cci_ca.len() {
+        if let Some(val) = cci_ca.get(i) {
+            if !val.is_nan() && val.is_finite() {
+                has_valid = true;
+                break;
+            }
+        }
+    }
+    assert!(has_valid, "CCI should produce some valid values");
+}
+
+// ==================== Williams %R Tests ====================
+
+#[test]
+fn test_williams_r_returns_correct_length() {
+    let df = create_test_data();
+    let high = df.column("high").unwrap();
+    let low = df.column("low").unwrap();
+    let close = df.column("close").unwrap();
+    
+    let wr_result = williams_r_14(high, low, close).unwrap();
+    
+    assert_eq!(wr_result.len(), close.len(), "Williams %R should have same length as input");
+}
+
+#[test]
+fn test_williams_r_values_in_range() {
+    let df = create_test_data();
+    let high = df.column("high").unwrap();
+    let low = df.column("low").unwrap();
+    let close = df.column("close").unwrap();
+    
+    let wr_result = williams_r(high, low, close, 5).unwrap();
+    let wr_ca = wr_result.f64().unwrap();
+    
+    for i in 0..wr_ca.len() {
+        if let Some(val) = wr_ca.get(i) {
+            if !val.is_nan() {
+                assert!(
+                    val >= -100.0 && val <= 0.0,
+                    "Williams %R value {} at index {} should be between -100 and 0",
+                    val, i
+                );
+            }
+        }
+    }
+}
+
+// ==================== CMF Tests ====================
+
+#[test]
+fn test_cmf_returns_correct_length() {
+    let df = create_test_data();
+    let high = df.column("high").unwrap();
+    let low = df.column("low").unwrap();
+    let close = df.column("close").unwrap();
+    let volume = df.column("volume").unwrap();
+    
+    let cmf_result = cmf_20(high, low, close, volume).unwrap();
+    
+    assert_eq!(cmf_result.len(), close.len(), "CMF should have same length as input");
+}
+
+#[test]
+fn test_cmf_values_in_range() {
+    let df = create_test_data();
+    let high = df.column("high").unwrap();
+    let low = df.column("low").unwrap();
+    let close = df.column("close").unwrap();
+    let volume = df.column("volume").unwrap();
+    
+    let cmf_result = cmf(high, low, close, volume, 5).unwrap();
+    let cmf_ca = cmf_result.f64().unwrap();
+    
+    for i in 0..cmf_ca.len() {
+        if let Some(val) = cmf_ca.get(i) {
+            if !val.is_nan() {
+                assert!(
+                    val >= -1.0 && val <= 1.0,
+                    "CMF value {} at index {} should be between -1 and 1",
+                    val, i
+                );
+            }
+        }
+    }
+}
+
+// ==================== PSAR Tests ====================
+
+#[test]
+fn test_psar_returns_correct_length() {
+    let df = create_test_data();
+    let high = df.column("high").unwrap();
+    let low = df.column("low").unwrap();
+    let close = df.column("close").unwrap();
+    
+    let psar_result = psar_default(high, low, close).unwrap();
+    
+    assert_eq!(psar_result.len(), close.len(), "PSAR should have same length as input");
+}
+
+#[test]
+fn test_psar_reasonable_values() {
+    let df = create_test_data();
+    let high = df.column("high").unwrap();
+    let low = df.column("low").unwrap();
+    let close = df.column("close").unwrap();
+    
+    let psar_result = psar(high, low, close, 0.02, 0.2).unwrap();
+    let psar_ca = psar_result.f64().unwrap();
+    
+    // PSAR values should be finite
+    for i in 2..psar_ca.len() {
+        if let Some(val) = psar_ca.get(i) {
+            if !val.is_nan() {
+                assert!(val.is_finite(), "PSAR should be finite at index {}", i);
+            }
+        }
+    }
+}
+
 #[test]
 fn test_all_indicators_no_panic() {
     // Simple test to ensure all indicators can be called without panicking
@@ -341,4 +488,8 @@ fn test_all_indicators_no_panic() {
     let _ = obv(close, volume);
     let _ = roc(close, 5);
     let _ = frac_diff_ffd(close, 0.4, 10);
+    let _ = cci_20(high, low, close);
+    let _ = williams_r_14(high, low, close);
+    let _ = cmf_20(high, low, close, volume);
+    let _ = psar_default(high, low, close);
 }
