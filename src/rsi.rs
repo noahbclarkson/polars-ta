@@ -56,7 +56,7 @@ pub fn rsi(series: &Series, period: usize) -> Result<Series> {
                 .alias("loss"),
         ])
         .with_columns(vec![
-            col("gain").ewm_mean(ewm_opts.clone()).alias("avg_gain"),
+            col("gain").ewm_mean(ewm_opts).alias("avg_gain"),
             col("loss").ewm_mean(ewm_opts).alias("avg_loss"),
         ])
         .with_column(

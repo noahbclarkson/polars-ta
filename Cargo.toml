@@ -9,7 +9,7 @@ keywords = ["polars", "technical-analysis", "finance", "trading", "indicators"]
 categories = ["science", "finance"]
 
 [dependencies]
-polars = { version = "0.37", features = ["lazy", "ndarray", "temporal", "serde", "dynamic_group_by", "abs", "diff", "pct_change", "rolling_window", "ewma", "round_series", "cross_join"] }
+polars = { version = "0.37", features = ["lazy", "ndarray", "temporal", "serde", "dynamic_group_by", "abs", "diff", "pct_change", "rolling_window", "ewma", "round_series", "cross_join", "cum_agg"] }
 anyhow = "1.0"
 thiserror = "1"
 

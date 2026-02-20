@@ -6,6 +6,12 @@
 use anyhow::Result;
 use polars::prelude::*;
 
+/// Wrap a series in a DataFrame for lazy operations
+fn series_to_lazy_df(series: &Series) -> Result<LazyFrame> {
+    let df = DataFrame::new(vec![series.clone()])?;
+    Ok(df.lazy())
+}
+
 /// Calculate EMA with period 12
 ///
 /// # Arguments
@@ -16,7 +22,7 @@ use polars::prelude::*;
 ///
 /// A new Series containing EMA(12) values
 pub fn ema_12(series: &Series) -> Result<Series> {
-    let col_name = series.name().unwrap_or("close");
+    let col_name = series.name();
     
     let ewm_opts = EWMOptions {
         alpha: 1.0 / 12.0,
@@ -26,9 +32,7 @@ pub fn ema_12(series: &Series) -> Result<Series> {
         ignore_nulls: true,
     };
     
-    let result = series
-        .clone()
-        .lazy()
+    let result = series_to_lazy_df(series)?
         .with_column(col(col_name).ewm_mean(ewm_opts).alias("ema_12"))
         .collect()?;
     
@@ -45,7 +49,7 @@ pub fn ema_12(series: &Series) -> Result<Series> {
 ///
 /// A new Series containing EMA(20) values
 pub fn ema_20(series: &Series) -> Result<Series> {
-    let col_name = series.name().unwrap_or("close");
+    let col_name = series.name();
     
     let ewm_opts = EWMOptions {
         alpha: 1.0 / 20.0,
@@ -55,9 +59,7 @@ pub fn ema_20(series: &Series) -> Result<Series> {
         ignore_nulls: true,
     };
     
-    let result = series
-        .clone()
-        .lazy()
+    let result = series_to_lazy_df(series)?
         .with_column(col(col_name).ewm_mean(ewm_opts).alias("ema_20"))
         .collect()?;
     
@@ -74,7 +76,7 @@ pub fn ema_20(series: &Series) -> Result<Series> {
 ///
 /// A new Series containing EMA(50) values
 pub fn ema_50(series: &Series) -> Result<Series> {
-    let col_name = series.name().unwrap_or("close");
+    let col_name = series.name();
     
     let ewm_opts = EWMOptions {
         alpha: 1.0 / 50.0,
@@ -84,9 +86,7 @@ pub fn ema_50(series: &Series) -> Result<Series> {
         ignore_nulls: true,
     };
     
-    let result = series
-        .clone()
-        .lazy()
+    let result = series_to_lazy_df(series)?
         .with_column(col(col_name).ewm_mean(ewm_opts).alias("ema_50"))
         .collect()?;
     
@@ -103,7 +103,7 @@ pub fn ema_50(series: &Series) -> Result<Series> {
 ///
 /// A new Series containing EMA(200) values
 pub fn ema_200(series: &Series) -> Result<Series> {
-    let col_name = series.name().unwrap_or("close");
+    let col_name = series.name();
     
     let ewm_opts = EWMOptions {
         alpha: 1.0 / 200.0,
@@ -113,9 +113,7 @@ pub fn ema_200(series: &Series) -> Result<Series> {
         ignore_nulls: true,
     };
     
-    let result = series
-        .clone()
-        .lazy()
+    let result = series_to_lazy_df(series)?
         .with_column(col(col_name).ewm_mean(ewm_opts).alias("ema_200"))
         .collect()?;
     
@@ -143,7 +141,7 @@ pub struct MacdResult {
 ///
 /// A `MacdResult` containing the MACD line, signal line, and histogram
 pub fn macd(series: &Series) -> Result<MacdResult> {
-    let col_name = series.name().unwrap_or("close");
+    let col_name = series.name();
     
     let ewm_fast = EWMOptions {
         alpha: 1.0 / 12.0,
@@ -169,9 +167,7 @@ pub fn macd(series: &Series) -> Result<MacdResult> {
         ignore_nulls: true,
     };
     
-    let df = series
-        .clone()
-        .lazy()
+    let df = series_to_lazy_df(series)?
         .with_column(col(col_name).ewm_mean(ewm_fast).alias("ema_12"))
         .with_column(col(col_name).ewm_mean(ewm_slow).alias("ema_26"))
         .with_column((col("ema_12") - col("ema_26")).alias("macd"))
@@ -196,7 +192,7 @@ pub fn macd(series: &Series) -> Result<MacdResult> {
 ///
 /// A new Series containing RSI values (0-100 scale)
 pub fn rsi_14(series: &Series) -> Result<Series> {
-    let col_name = series.name().unwrap_or("close");
+    let col_name = series.name();
     
     let ewm_14 = EWMOptions {
         alpha: 1.0 / 14.0,
@@ -206,9 +202,7 @@ pub fn rsi_14(series: &Series) -> Result<Series> {
         ignore_nulls: true,
     };
     
-    let df = series
-        .clone()
-        .lazy()
+    let df = series_to_lazy_df(series)?
         .with_column(col(col_name).diff(1, Default::default()).alias("diff"))
         .with_columns(vec![
             when(col("diff").gt(0.0))
@@ -221,7 +215,7 @@ pub fn rsi_14(series: &Series) -> Result<Series> {
                 .alias("loss"),
         ])
         .with_columns(vec![
-            col("gain").ewm_mean(ewm_14.clone()).alias("avg_gain"),
+            col("gain").ewm_mean(ewm_14).alias("avg_gain"),
             col("loss").ewm_mean(ewm_14).alias("avg_loss"),
         ])
         .with_column(
@@ -342,7 +336,7 @@ mod tests {
     
     #[test]
     fn test_ema_20_simple_series() {
-        let close = Series::new("close", &[100.0, 101.0, 102.0, 101.5, 103.0]);
+        let close = Series::new("close".into(), &[100.0, 101.0, 102.0, 101.5, 103.0]);
         let result = ema_20(&close);
         
         assert!(result.is_ok());
@@ -352,7 +346,7 @@ mod tests {
     
     #[test]
     fn test_ema_12_simple_series() {
-        let close = Series::new("close", &[100.0, 101.0, 102.0, 101.5, 103.0]);
+        let close = Series::new("close".into(), &[100.0, 101.0, 102.0, 101.5, 103.0]);
         let result = ema_12(&close);
         
         assert!(result.is_ok());
@@ -362,7 +356,7 @@ mod tests {
     
     #[test]
     fn test_ema_50_simple_series() {
-        let close = Series::new("close", &[100.0, 101.0, 102.0, 101.5, 103.0]);
+        let close = Series::new("close".into(), &[100.0, 101.0, 102.0, 101.5, 103.0]);
         let result = ema_50(&close);
         
         assert!(result.is_ok());
@@ -372,7 +366,7 @@ mod tests {
     
     #[test]
     fn test_ema_200_simple_series() {
-        let close = Series::new("close", &[100.0, 101.0, 102.0, 101.5, 103.0]);
+        let close = Series::new("close".into(), &[100.0, 101.0, 102.0, 101.5, 103.0]);
         let result = ema_200(&close);
         
         assert!(result.is_ok());
@@ -383,7 +377,7 @@ mod tests {
     #[test]
     fn test_rsi_14_basic() {
         // Test with a simple price series
-        let close = Series::new("close", &[
+        let close = Series::new("close".into(), &[
             44.0, 44.25, 44.50, 44.75, 45.0, 
             45.25, 45.50, 45.75, 46.0, 46.25,
             46.50, 46.75, 47.0, 47.25
@@ -407,7 +401,7 @@ mod tests {
     
     #[test]
     fn test_macd_basic() {
-        let close = Series::new("close", &[
+        let close = Series::new("close".into(), &[
             100.0, 101.5, 102.3, 101.8, 103.2,
             104.1, 103.5, 105.0, 106.2, 105.8,
             107.0, 106.5, 108.0, 109.2, 108.5,
@@ -425,21 +419,21 @@ mod tests {
     
     #[test]
     fn test_atr_14_basic() {
-        let high = Series::new("high", &[
+        let high = Series::new("high".into(), &[
             102.0, 103.5, 104.0, 103.5, 105.0,
             106.0, 105.5, 107.0, 108.0, 107.5,
             109.0, 108.5, 110.0, 111.0, 110.5,
             112.0, 111.5, 113.0, 112.5, 114.0
         ]);
         
-        let low = Series::new("low", &[
+        let low = Series::new("low".into(), &[
             99.0, 100.5, 101.0, 100.5, 102.0,
             103.0, 102.5, 104.0, 105.0, 104.5,
             106.0, 105.5, 107.0, 108.0, 107.5,
             109.0, 108.5, 110.0, 109.5, 111.0
         ]);
         
-        let close = Series::new("close", &[
+        let close = Series::new("close".into(), &[
             100.0, 101.5, 102.3, 101.8, 103.2,
             104.1, 103.5, 105.0, 106.2, 105.8,
             107.0, 106.5, 108.0, 109.2, 108.5,
