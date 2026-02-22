@@ -78,6 +78,9 @@ pub mod cci;
 pub mod williams_r;
 pub mod cmf;
 pub mod psar;
+pub mod mfi;
+pub mod trix;
+pub mod tsi;
 pub mod indicators;
 
 // Re-export main types and functions
@@ -97,6 +100,9 @@ pub use cci::{cci, cci_20};
 pub use williams_r::{williams_r, williams_r_14};
 pub use cmf::{cmf, cmf_20};
 pub use psar::{psar, psar_default};
+pub use mfi::mfi;
+pub use trix::trix;
+pub use tsi::tsi;
 
 // Re-export from indicators module (extracted from krypto)
 pub use indicators::{
