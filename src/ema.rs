@@ -9,7 +9,10 @@ use polars::prelude::*;
 /// Calculate Exponential Moving Average
 ///
 /// Uses the formula: EMA_t = α * price_t + (1 - α) * EMA_{t-1}
-/// where α = 1 / period
+///
+/// **Note on Alpha Convention:** This implementation uses `α = 1 / period`.
+/// This differs from the standard Wilder/TA-Lib convention of `α = 2 / (period + 1)`.
+/// Users migrating from other libraries may see slightly different numerical values.
 ///
 /// # Arguments
 ///

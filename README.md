@@ -10,7 +10,7 @@ A comprehensive library of technical indicators designed for algorithmic trading
 
 ## Features
 
-- 📈 **EMA** - Exponential Moving Average (configurable period)
+- 📈 **EMA** - Exponential Moving Average (Note: uses `α = 1/period`, not TA-Lib's `2/(period+1)`)
 - 📊 **SMA** - Simple Moving Average (configurable period)
 - 📉 **MACD** - Moving Average Convergence Divergence (12/26/9 standard or custom)
 - 💪 **RSI** - Relative Strength Index (Wilder's smoothing, 14-period standard)

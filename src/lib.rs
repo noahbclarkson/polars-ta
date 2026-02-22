@@ -21,12 +21,15 @@
 //! - **ATR** - Average True Range
 //! - **Bollinger Bands** - Volatility bands
 //!
+//! **Trend Strength:**
+//! - **ADX** - Average Directional Index
+//! - **TRIX** - Triple Exponential Average
+//! - **TSI** - True Strength Index
+//!
 //! **Volume Indicators:**
 //! - **OBV** - On-Balance Volume
 //! - **VWAP** - Volume Weighted Average Price
-//!
-//! **Trend Strength:**
-//! - **ADX** - Average Directional Index
+//! - **MFI** - Money Flow Index
 //!
 //! **Special:**
 //! - **Frac Diff** - Fractional differentiation for stationary time series
@@ -35,7 +38,7 @@
 //!
 //! ```rust,no_run
 //! use polars::prelude::*;
-//! use polars_ta::{rsi_14, macd_default, stochastic_14_3, vwap, adx_14};
+//! use polars_ta::{rsi_14, macd_default, mfi, trix, tsi, stochastic_14_3, vwap, adx_14};
 //!
 //! // Create price series
 //! let high = Series::new("high", &[105.0, 106.0, 107.0, 106.5, 108.0]);
@@ -45,6 +48,15 @@
 //!
 //! // Calculate RSI
 //! let rsi = rsi_14(&close).unwrap();
+//!
+//! // MFI requires a DataFrame containing High, Low, Close, and Volume
+//! let df = DataFrame::new(vec![high.clone(), low.clone(), close.clone(), volume.clone()]).unwrap();
+//! let mfi_series = mfi(&df, 14).unwrap();
+//! 
+//! // TRIX and TSI require a DataFrame containing Close
+//! let df_close = DataFrame::new(vec![close.clone()]).unwrap();
+//! let trix_series = trix(&df_close, 15).unwrap();
+//! let tsi_series = tsi(&df_close, 25, 13).unwrap();
 //!
 //! // Calculate MACD
 //! let macd_result = macd_default(&close).unwrap();
