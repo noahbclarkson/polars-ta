@@ -107,6 +107,5 @@ pub use tsi::tsi;
 // Re-export from indicators module (extracted from krypto)
 pub use indicators::{
     ema_12, ema_20, ema_50, ema_200,
-    macd as macd_indicators, rsi_14 as rsi_14_indicators, atr_14 as atr_14_indicators, true_range,
-    MacdResult as MacdResultIndicators,
+    true_range,
 };
