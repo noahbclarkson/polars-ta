@@ -121,3 +121,4 @@ pub use indicators::{
     ema_12, ema_20, ema_50, ema_200,
     true_range,
 };
+fn test_dummy() {}
