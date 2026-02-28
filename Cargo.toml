@@ -5,6 +5,7 @@ edition = "2021"
 description = "Technical analysis indicators for Polars DataFrames"
 license = "MIT"
 repository = "https://github.com/noahbclarkson/polars-ta"
+readme = "README.md"
 keywords = ["polars", "technical-analysis", "finance", "trading", "indicators"]
 categories = ["science", "finance"]
 
