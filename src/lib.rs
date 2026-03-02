@@ -94,6 +94,7 @@ pub mod mfi;
 pub mod trix;
 pub mod tsi;
 pub mod indicators;
+pub mod patterns;
 
 // Re-export main types and functions
 pub use ema::ema;
@@ -121,3 +122,6 @@ pub use indicators::{
     ema_12, ema_20, ema_50, ema_200,
     true_range,
 };
+
+// Re-export candlestick pattern detection functions
+pub use patterns::{doji, hammer, engulfing, star};
