@@ -79,6 +79,7 @@ pub fn tsi(df: &DataFrame, slow_period: usize, fast_period: usize) -> Result<Ser
 
     let mut tsi_out: Vec<Option<f64>> = vec![None; n];
 
+    #[allow(clippy::needless_range_loop)]
     for i in 0..n {
         if let (Some(dp), Some(dap)) = (dp_ca.get(i), dap_ca.get(i)) {
             if dap != 0.0 {

@@ -54,6 +54,7 @@ pub fn trix(df: &DataFrame, period: usize) -> Result<Series> {
     // TRIX[i] = (EMA3[i] - EMA3[i-1]) / EMA3[i-1] * 100
     let mut trix_out: Vec<Option<f64>> = vec![None; n];
 
+    #[allow(clippy::needless_range_loop)]
     for i in 1..n {
         if let (Some(curr), Some(prev)) = (ema3_ca.get(i), ema3_ca.get(i - 1)) {
             if prev != 0.0 {

@@ -71,6 +71,7 @@ pub fn mfi(df: &DataFrame, period: usize) -> Result<Series> {
     // Step 2: Compute MFI for each bar (from `period` onward)
     let mut mfi_out: Vec<Option<f64>> = vec![None; n];
 
+    #[allow(clippy::needless_range_loop)]
     for i in period..n {
         let mut pos_mf = 0.0_f64;
         let mut neg_mf = 0.0_f64;

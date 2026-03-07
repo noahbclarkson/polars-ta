@@ -95,8 +95,8 @@ pub fn adx(high: &Series, low: &Series, close: &Series, period: usize) -> Result
                 .alias("tr"),
         )
         // Smooth the values using EWM
-        .with_column(col("tr").ewm_mean(ewm_opts.clone()).alias("smoothed_tr"))
-        .with_column(col("plus_dm").ewm_mean(ewm_opts.clone()).alias("smoothed_plus_dm"))
+        .with_column(col("tr").ewm_mean(ewm_opts).alias("smoothed_tr"))
+        .with_column(col("plus_dm").ewm_mean(ewm_opts).alias("smoothed_plus_dm"))
         .with_column(col("minus_dm").ewm_mean(ewm_opts).alias("smoothed_minus_dm"))
         // Calculate DI
         .with_column(

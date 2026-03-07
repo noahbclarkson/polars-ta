@@ -58,7 +58,7 @@ pub fn psar(
     
     // Need at least 2 data points
     if len < 2 {
-        return Ok(Series::new("psar".into(), sar_values));
+        return Ok(Series::new("psar", sar_values));
     }
     
     // Initialize: determine initial trend from first two closes
@@ -70,7 +70,7 @@ pub fn psar(
     let low_1 = low_ca.get(1).unwrap_or(f64::NAN);
     
     if close_0.is_nan() || close_1.is_nan() || high_0.is_nan() || high_1.is_nan() || low_0.is_nan() || low_1.is_nan() {
-        return Ok(Series::new("psar".into(), sar_values));
+        return Ok(Series::new("psar", sar_values));
     }
     
     // Initial trend: up if close increased, otherwise down
@@ -86,6 +86,7 @@ pub fn psar(
     sar_values[1] = sar;
     
     // Iterate through the data
+    #[allow(clippy::needless_range_loop)]
     for i in 2..len {
         let high_i = high_ca.get(i).unwrap_or(f64::NAN);
         let low_i = low_ca.get(i).unwrap_or(f64::NAN);
@@ -152,7 +153,7 @@ pub fn psar(
         sar_values[i] = sar;
     }
     
-    Ok(Series::new("psar".into(), sar_values))
+    Ok(Series::new("psar", sar_values))
 }
 
 /// Calculate PSAR with default settings (af_step=0.02, af_max=0.20)
