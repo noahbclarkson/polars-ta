@@ -47,21 +47,21 @@ fn main() -> anyhow::Result<()> {
 
     // Build analysis DataFrame
     println!("2. Building Analysis DataFrame...");
-    let df = DataFrame::new(vec![
-        close.clone().alias("close"),
-        rsi.alias("rsi"),
-        macd.macd.alias("macd"),
-        macd.signal.alias("macd_signal"),
-        macd.histogram.alias("macd_histogram"),
-        ema_20.alias("ema_20"),
-        sma_50.alias("sma_50"),
-        bb.upper.alias("bb_upper"),
-        bb.lower.alias("bb_lower"),
-        atr.alias("atr"),
-        adx.adx.alias("adx"),
-        stoch.k.alias("stoch_k"),
-        stoch.d.alias("stoch_d"),
-    ])?;
+    let df = df![
+        "close" => &close,
+        "rsi" => &rsi,
+        "macd" => &macd.macd,
+        "macd_signal" => &macd.signal,
+        "macd_histogram" => &macd.histogram,
+        "ema_20" => &ema_20,
+        "sma_50" => &sma_50,
+        "bb_upper" => &bb.upper,
+        "bb_lower" => &bb.lower,
+        "atr" => &atr,
+        "adx" => &adx.adx,
+        "stoch_k" => &stoch.k,
+        "stoch_d" => &stoch.d,
+    ]?;
     println!("   ✓ DataFrame created\n");
 
     // Define trading rules
@@ -150,29 +150,34 @@ fn main() -> anyhow::Result<()> {
     ];
 
     let last_5 = signals
+        .clone()
         .lazy()
         .select(display_cols)
-        .tail(Some(5))
+        .tail(5)
         .collect()?;
 
     println!("{:?}\n", last_5);
 
     // Count signals
     println!("5. Signal Summary:");
-    let buy_signals = signals
+    let buy_count = signals
+        .clone()
         .lazy()
         .filter(col("combined_signal").eq(lit(1)))
-        .count()?
+        .select([len().alias("count")])
         .collect()?;
     
-    let sell_signals = signals
+    let sell_count = signals
         .lazy()
         .filter(col("combined_signal").eq(lit(-1)))
-        .count()?
+        .select([len().alias("count")])
         .collect()?;
 
-    println!("   Buy signals generated: {:?}", buy_signals.column("count")?.i32()?.get(0).unwrap_or(0));
-    println!("   Sell signals generated: {:?}\n", sell_signals.column("count")?.i32()?.get(0).unwrap_or(0));
+    let buy_signals = buy_count.column("count")?.idx()?.get(0).unwrap_or(0);
+    let sell_signals = sell_count.column("count")?.idx()?.get(0).unwrap_or(0);
+
+    println!("   Buy signals generated: {}", buy_signals);
+    println!("   Sell signals generated: {}\n", sell_signals);
 
     // Risk management example
     println!("6. Risk Management with ATR:");
