@@ -106,7 +106,7 @@ fn main() -> anyhow::Result<()> {
     println!("   Combined indicators DataFrame (last 3 rows):");
     let last_3 = analysis_df
         .lazy()
-        .tail(Some(3))
+        .tail(3)
         .collect()?;
     println!("{:?}", last_3);
     println!();

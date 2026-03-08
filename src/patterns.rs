@@ -330,7 +330,7 @@ pub fn star(
         
         // First candle midpoint
         .with_column(
-            (col("candle1_body_low") + col("candle1_body_high")) / lit(2.0)
+            ((col("candle1_body_low") + col("candle1_body_high")) / lit(2.0))
                 .alias("candle1_midpoint")
         )
         
@@ -420,8 +420,11 @@ mod tests {
     #[test]
     fn test_bullish_engulfing() -> Result<()> {
         // Create bullish engulfing pattern
-        let open = Series::new("open", &[100.0, 99.0, 98.0]);
-        let close = Series::new("close", &[99.0, 98.0, 100.5]);
+        // Candle 0: bearish (100 -> 98)
+        // Candle 1: bearish (99 -> 97) - previous candle
+        // Candle 2: bullish (96 -> 100) - engulfs candle 1 completely
+        let open = Series::new("open", &[100.0, 99.0, 96.0]);
+        let close = Series::new("close", &[98.0, 97.0, 100.0]);
         
         let result = engulfing(&open, &close)?;
         let values = result.i32()?;
@@ -439,8 +442,11 @@ mod tests {
     #[test]
     fn test_bearish_engulfing() -> Result<()> {
         // Create bearish engulfing pattern
-        let open = Series::new("open", &[100.0, 101.0, 102.0]);
-        let close = Series::new("close", &[101.0, 102.0, 99.0]);
+        // Candle 0: bullish (100 -> 102)
+        // Candle 1: bullish (101 -> 103) - previous candle
+        // Candle 2: bearish (104 -> 99) - engulfs candle 1 completely
+        let open = Series::new("open", &[100.0, 101.0, 104.0]);
+        let close = Series::new("close", &[102.0, 103.0, 99.0]);
         
         let result = engulfing(&open, &close)?;
         let values = result.i32()?;
@@ -454,18 +460,18 @@ mod tests {
     #[test]
     fn test_morning_star() -> Result<()> {
         // Create morning star pattern
-        // Candle 1: Bearish, large body
-        // Candle 2: Small body
-        // Candle 3: Bullish, closes above midpoint of candle 1
-        let open = Series::new("open", &[105.0, 100.0, 98.0, 97.0, 96.0]);
-        let high = Series::new("high", &[105.5, 100.5, 98.5, 102.0, 96.5]);
-        let low = Series::new("low", &[100.0, 97.0, 97.0, 97.0, 94.0]);
-        let close = Series::new("close", &[100.0, 98.0, 98.2, 101.0, 95.0]);
+        // Candle 0: Bearish, large body (105 -> 95, body=10)
+        // Candle 1: Small body (97 -> 96.5, body=0.5) - less than 30% of candle 0's body
+        // Candle 2: Bullish, closes above midpoint of candle 0 (midpoint=100)
+        let open = Series::new("open", &[105.0, 97.0, 96.0]);
+        let high = Series::new("high", &[105.5, 97.5, 103.0]);
+        let low = Series::new("low", &[95.0, 96.0, 96.0]);
+        let close = Series::new("close", &[95.0, 96.5, 102.0]);
         
         let result = star(&open, &high, &low, &close, None)?;
         let values = result.i32()?;
         
-        // Candle 3 (index 2) should be morning star
+        // Candle 2 (index 2) should be morning star
         assert_eq!(values.get(2), Some(1));
         
         Ok(())
@@ -474,18 +480,18 @@ mod tests {
     #[test]
     fn test_evening_star() -> Result<()> {
         // Create evening star pattern
-        // Candle 1: Bullish, large body
-        // Candle 2: Small body
-        // Candle 3: Bearish, closes below midpoint of candle 1
-        let open = Series::new("open", &[95.0, 96.0, 101.0, 100.5, 102.0]);
-        let high = Series::new("high", &[96.5, 102.0, 101.5, 101.0, 103.0]);
-        let low = Series::new("low", &[95.0, 96.0, 100.0, 97.0, 96.0]);
-        let close = Series::new("close", &[96.5, 101.0, 100.5, 97.5, 96.5]);
+        // Candle 0: Bullish, large body (95 -> 105, body=10)
+        // Candle 1: Small body (104 -> 104.5, body=0.5) - less than 30% of candle 0's body
+        // Candle 2: Bearish, closes below midpoint of candle 0 (midpoint=100)
+        let open = Series::new("open", &[95.0, 104.0, 105.0]);
+        let high = Series::new("high", &[105.5, 105.0, 105.5]);
+        let low = Series::new("low", &[95.0, 103.5, 96.0]);
+        let close = Series::new("close", &[105.0, 104.5, 96.5]);
         
         let result = star(&open, &high, &low, &close, None)?;
         let values = result.i32()?;
         
-        // Candle 3 (index 2) should be evening star
+        // Candle 2 (index 2) should be evening star
         assert_eq!(values.get(2), Some(-1));
         
         Ok(())
