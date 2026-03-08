@@ -130,10 +130,10 @@ mod tests {
 
     #[test]
     fn test_cmf_returns_correct_length() {
-        let high = Series::new("high".into(), (0..25).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
-        let low = Series::new("low".into(), (0..25).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
-        let close = Series::new("close".into(), (0..25).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
-        let volume = Series::new("volume".into(), (0..25).map(|i| 1000.0 + i as f64 * 10.0).collect::<Vec<_>>());
+        let high = Series::new("high", (0..25).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..25).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..25).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
+        let volume = Series::new("volume", (0..25).map(|i| 1000.0 + i as f64 * 10.0).collect::<Vec<_>>());
         
         let result = cmf_20(&high, &low, &close, &volume).unwrap();
         
@@ -142,10 +142,10 @@ mod tests {
 
     #[test]
     fn test_cmf_values_in_range() {
-        let high = Series::new("high".into(), (0..25).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
-        let low = Series::new("low".into(), (0..25).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
-        let close = Series::new("close".into(), (0..25).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
-        let volume = Series::new("volume".into(), vec![1000.0; 25]);
+        let high = Series::new("high", (0..25).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..25).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..25).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
+        let volume = Series::new("volume", vec![1000.0; 25]);
         
         let result = cmf_20(&high, &low, &close, &volume).unwrap();
         let cmf_ca = result.f64().unwrap();
@@ -153,7 +153,7 @@ mod tests {
         for i in 0..cmf_ca.len() {
             if let Some(val) = cmf_ca.get(i) {
                 if !val.is_nan() {
-                    assert!(val >= -1.0 && val <= 1.0, 
+                    assert!((-1.0..=1.0).contains(&val), 
                         "CMF value {} at index {} should be between -1 and 1", val, i);
                 }
             }
@@ -163,10 +163,10 @@ mod tests {
     #[test]
     fn test_cmf_at_high_positive() {
         // When close is at high (strong buying), CMF should be positive
-        let high = Series::new("high".into(), &[110.0; 25]);
-        let low = Series::new("low".into(), &[100.0; 25]);
-        let close = Series::new("close".into(), &[110.0; 25]); // At high
-        let volume = Series::new("volume".into(), vec![1000.0; 25]);
+        let high = Series::new("high", &[110.0; 25]);
+        let low = Series::new("low", &[100.0; 25]);
+        let close = Series::new("close", &[110.0; 25]); // At high
+        let volume = Series::new("volume", vec![1000.0; 25]);
         
         let result = cmf(&high, &low, &close, &volume, 20).unwrap();
         let cmf_ca = result.f64().unwrap();
@@ -182,10 +182,10 @@ mod tests {
     #[test]
     fn test_cmf_at_low_negative() {
         // When close is at low (strong selling), CMF should be negative
-        let high = Series::new("high".into(), &[110.0; 25]);
-        let low = Series::new("low".into(), &[100.0; 25]);
-        let close = Series::new("close".into(), &[100.0; 25]); // At low
-        let volume = Series::new("volume".into(), vec![1000.0; 25]);
+        let high = Series::new("high", &[110.0; 25]);
+        let low = Series::new("low", &[100.0; 25]);
+        let close = Series::new("close", &[100.0; 25]); // At low
+        let volume = Series::new("volume", vec![1000.0; 25]);
         
         let result = cmf(&high, &low, &close, &volume, 20).unwrap();
         let cmf_ca = result.f64().unwrap();

@@ -189,9 +189,9 @@ mod tests {
 
     #[test]
     fn test_psar_returns_correct_length() {
-        let high = Series::new("high".into(), (0..30).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
-        let low = Series::new("low".into(), (0..30).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
-        let close = Series::new("close".into(), (0..30).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
+        let high = Series::new("high", (0..30).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..30).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..30).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
         
         let result = psar_default(&high, &low, &close).unwrap();
         
@@ -201,9 +201,9 @@ mod tests {
     #[test]
     fn test_psar_uptrend_below_price() {
         // In an uptrend, SAR should be below the price
-        let high = Series::new("high".into(), (0..20).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
-        let low = Series::new("low".into(), (0..20).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
-        let close = Series::new("close".into(), (0..20).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
+        let high = Series::new("high", (0..20).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..20).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..20).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
         
         let result = psar_default(&high, &low, &close).unwrap();
         let psar_ca = result.f64().unwrap();
@@ -226,9 +226,9 @@ mod tests {
     #[test]
     fn test_psar_downtrend_above_price() {
         // In a downtrend, SAR should be above the price
-        let high = Series::new("high".into(), (0..20).map(|i| 105.0 - i as f64).collect::<Vec<_>>());
-        let low = Series::new("low".into(), (0..20).map(|i| 100.0 - i as f64).collect::<Vec<_>>());
-        let close = Series::new("close".into(), (0..20).map(|i| 103.0 - i as f64).collect::<Vec<_>>());
+        let high = Series::new("high", (0..20).map(|i| 105.0 - i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..20).map(|i| 100.0 - i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..20).map(|i| 103.0 - i as f64).collect::<Vec<_>>());
         
         let result = psar_default(&high, &low, &close).unwrap();
         let psar_ca = result.f64().unwrap();
@@ -250,9 +250,9 @@ mod tests {
 
     #[test]
     fn test_psar_handles_short_series() {
-        let high = Series::new("high".into(), &[105.0, 106.0]);
-        let low = Series::new("low".into(), &[100.0, 101.0]);
-        let close = Series::new("close".into(), &[103.0, 104.0]);
+        let high = Series::new("high", &[105.0, 106.0]);
+        let low = Series::new("low", &[100.0, 101.0]);
+        let close = Series::new("close", &[103.0, 104.0]);
         
         let result = psar_default(&high, &low, &close).unwrap();
         

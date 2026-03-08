@@ -132,10 +132,10 @@ mod tests {
 
     #[test]
     fn test_vwap_returns_correct_length() {
-        let high = Series::new("high".into(), &[105.0, 106.0, 107.0, 106.5, 108.0]);
-        let low = Series::new("low".into(), &[100.0, 101.0, 102.0, 101.5, 103.0]);
-        let close = Series::new("close".into(), &[103.0, 104.0, 105.0, 104.5, 106.0]);
-        let volume = Series::new("volume".into(), &[1000.0, 1200.0, 800.0, 1500.0, 900.0]);
+        let high = Series::new("high", &[105.0, 106.0, 107.0, 106.5, 108.0]);
+        let low = Series::new("low", &[100.0, 101.0, 102.0, 101.5, 103.0]);
+        let close = Series::new("close", &[103.0, 104.0, 105.0, 104.5, 106.0]);
+        let volume = Series::new("volume", &[1000.0, 1200.0, 800.0, 1500.0, 900.0]);
         
         let result = vwap(&high, &low, &close, &volume).unwrap();
         assert_eq!(result.len(), close.len());
@@ -143,10 +143,10 @@ mod tests {
 
     #[test]
     fn test_vwap_first_value_equals_typical_price() {
-        let high = Series::new("high".into(), &[105.0]);
-        let low = Series::new("low".into(), &[100.0]);
-        let close = Series::new("close".into(), &[103.0]);
-        let volume = Series::new("volume".into(), &[1000.0]);
+        let high = Series::new("high", &[105.0]);
+        let low = Series::new("low", &[100.0]);
+        let close = Series::new("close", &[103.0]);
+        let volume = Series::new("volume", &[1000.0]);
         
         let typical_price = (105.0 + 100.0 + 103.0) / 3.0;
         let result = vwap(&high, &low, &close, &volume).unwrap();
@@ -157,10 +157,10 @@ mod tests {
 
     #[test]
     fn test_rolling_vwap_returns_correct_length() {
-        let high = Series::new("high".into(), &[105.0, 106.0, 107.0, 106.5, 108.0, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0, 121.0, 122.0, 123.0, 124.0, 125.0]);
-        let low = Series::new("low".into(), &[100.0, 101.0, 102.0, 101.5, 103.0, 104.0, 105.0, 106.0, 107.0, 108.0, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0]);
-        let close = Series::new("close".into(), &[103.0, 104.0, 105.0, 104.5, 106.0, 107.0, 108.0, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0, 121.0, 122.0, 123.0]);
-        let volume = Series::new("volume".into(), &[1000.0; 22]);
+        let high = Series::new("high", &[105.0, 106.0, 107.0, 106.5, 108.0, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0, 121.0, 122.0, 123.0, 124.0, 125.0]);
+        let low = Series::new("low", &[100.0, 101.0, 102.0, 101.5, 103.0, 104.0, 105.0, 106.0, 107.0, 108.0, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0]);
+        let close = Series::new("close", &[103.0, 104.0, 105.0, 104.5, 106.0, 107.0, 108.0, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0, 121.0, 122.0, 123.0]);
+        let volume = Series::new("volume", &[1000.0; 22]);
         
         let result = rolling_vwap(&high, &low, &close, &volume, 20).unwrap();
         assert_eq!(result.len(), close.len());

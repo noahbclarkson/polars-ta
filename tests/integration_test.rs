@@ -149,7 +149,7 @@ fn test_rsi_values_between_0_and_100() {
         if let Some(val) = rsi_ca.get(i) {
             if !val.is_nan() {
                 assert!(
-                    val >= 0.0 && val <= 100.0,
+                    (0.0..=100.0).contains(&val),
                     "RSI value {} at index {} should be between 0 and 100",
                     val, i
                 );
@@ -383,7 +383,7 @@ fn test_williams_r_values_in_range() {
         if let Some(val) = wr_ca.get(i) {
             if !val.is_nan() {
                 assert!(
-                    val >= -100.0 && val <= 0.0,
+                    (-100.0..=0.0).contains(&val),
                     "Williams %R value {} at index {} should be between -100 and 0",
                     val, i
                 );
@@ -422,7 +422,7 @@ fn test_cmf_values_in_range() {
         if let Some(val) = cmf_ca.get(i) {
             if !val.is_nan() {
                 assert!(
-                    val >= -1.0 && val <= 1.0,
+                    (-1.0..=1.0).contains(&val),
                     "CMF value {} at index {} should be between -1 and 1",
                     val, i
                 );

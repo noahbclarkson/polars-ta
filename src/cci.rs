@@ -112,9 +112,9 @@ mod tests {
 
     #[test]
     fn test_cci_returns_correct_length() {
-        let high = Series::new("high".into(), (0..30).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
-        let low = Series::new("low".into(), (0..30).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
-        let close = Series::new("close".into(), (0..30).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
+        let high = Series::new("high", (0..30).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..30).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..30).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
         
         let result = cci_20(&high, &low, &close).unwrap();
         
@@ -125,9 +125,9 @@ mod tests {
     fn test_cci_extreme_values() {
         // When price is at the high of the range, CCI should be high positive
         // When price is at the low of the range, CCI should be negative
-        let high = Series::new("high".into(), &[110.0; 25]);
-        let low = Series::new("low".into(), &[100.0; 25]);
-        let close = Series::new("close".into(), &[110.0; 25]); // At high
+        let high = Series::new("high", &[110.0; 25]);
+        let low = Series::new("low", &[100.0; 25]);
+        let close = Series::new("close", &[110.0; 25]); // At high
         
         let result = cci(&high, &low, &close, 20).unwrap();
         let cci_ca = result.f64().unwrap();

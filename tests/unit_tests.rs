@@ -131,7 +131,7 @@ fn test_rsi_boundary_conditions() {
     for i in 0..rsi_ca.len() {
         if let Some(val) = rsi_ca.get(i) {
             if !val.is_nan() {
-                assert!(val >= 0.0 && val <= 100.0, 
+                assert!((0.0..=100.0).contains(&val), 
                     "RSI at index {} is {} which is outside [0, 100]", i, val);
             }
         }
@@ -369,7 +369,7 @@ fn test_bollinger_price_containment() {
     let close_ca = close.f64().unwrap();
     
     // Count prices outside bands after warm-up period
-    let mut outside_count = 0;
+    let mut _outside_count = 0;
     let mut valid_count = 0;
     
     for i in 20..close.len() {
@@ -378,7 +378,7 @@ fn test_bollinger_price_containment() {
             if !price.is_nan() && !upper.is_nan() && !lower.is_nan() {
                 valid_count += 1;
                 if price > upper || price < lower {
-                    outside_count += 1;
+                    _outside_count += 1;
                 }
             }
         }

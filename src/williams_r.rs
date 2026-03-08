@@ -98,9 +98,9 @@ mod tests {
 
     #[test]
     fn test_williams_r_returns_correct_length() {
-        let high = Series::new("high".into(), (0..20).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
-        let low = Series::new("low".into(), (0..20).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
-        let close = Series::new("close".into(), (0..20).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
+        let high = Series::new("high", (0..20).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..20).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..20).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
         
         let result = williams_r_14(&high, &low, &close).unwrap();
         
@@ -109,9 +109,9 @@ mod tests {
 
     #[test]
     fn test_williams_r_values_in_range() {
-        let high = Series::new("high".into(), (0..20).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
-        let low = Series::new("low".into(), (0..20).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
-        let close = Series::new("close".into(), (0..20).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
+        let high = Series::new("high", (0..20).map(|i| 105.0 + i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..20).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..20).map(|i| 103.0 + i as f64).collect::<Vec<_>>());
         
         let result = williams_r_14(&high, &low, &close).unwrap();
         let wr_ca = result.f64().unwrap();
@@ -119,7 +119,7 @@ mod tests {
         for i in 0..wr_ca.len() {
             if let Some(val) = wr_ca.get(i) {
                 if !val.is_nan() {
-                    assert!(val >= -100.0 && val <= 0.0, 
+                    assert!((-100.0..=0.0).contains(&val), 
                         "Williams %R value {} at index {} should be between -100 and 0", val, i);
                 }
             }
@@ -129,9 +129,9 @@ mod tests {
     #[test]
     fn test_williams_r_at_high_is_zero() {
         // When close equals highest high, %R should be 0
-        let high = Series::new("high".into(), &[110.0; 20]);
-        let low = Series::new("low".into(), &[100.0; 20]);
-        let close = Series::new("close".into(), &[110.0; 20]); // At highest high
+        let high = Series::new("high", &[110.0; 20]);
+        let low = Series::new("low", &[100.0; 20]);
+        let close = Series::new("close", &[110.0; 20]); // At highest high
         
         let result = williams_r(&high, &low, &close, 14).unwrap();
         let wr_ca = result.f64().unwrap();
@@ -147,9 +147,9 @@ mod tests {
     #[test]
     fn test_williams_r_at_low_is_minus_100() {
         // When close equals lowest low, %R should be -100
-        let high = Series::new("high".into(), &[110.0; 20]);
-        let low = Series::new("low".into(), &[100.0; 20]);
-        let close = Series::new("close".into(), &[100.0; 20]); // At lowest low
+        let high = Series::new("high", &[110.0; 20]);
+        let low = Series::new("low", &[100.0; 20]);
+        let close = Series::new("close", &[100.0; 20]); // At lowest low
         
         let result = williams_r(&high, &low, &close, 14).unwrap();
         let wr_ca = result.f64().unwrap();

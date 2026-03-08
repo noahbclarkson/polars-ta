@@ -159,7 +159,7 @@ mod tests {
         let f64_ca = result.f64().unwrap();
         for i in 10..50 {
             if let Some(v) = f64_ca.get(i) {
-                assert!(v >= 0.0 && v <= 100.0, "MFI out of range: {}", v);
+                assert!((0.0..=100.0).contains(&v), "MFI out of range: {}", v);
             }
         }
     }

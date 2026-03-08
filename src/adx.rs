@@ -169,9 +169,9 @@ mod tests {
 
     #[test]
     fn test_adx_returns_correct_length() {
-        let high = Series::new("high".into(), &[105.0, 106.0, 107.0, 106.5, 108.0, 109.0, 108.5, 110.0, 111.0, 110.5, 112.0, 113.0, 112.5, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0]);
-        let low = Series::new("low".into(), &[100.0, 101.0, 102.0, 101.5, 103.0, 104.0, 103.5, 105.0, 106.0, 105.5, 107.0, 108.0, 107.5, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0]);
-        let close = Series::new("close".into(), &[103.0, 104.0, 105.0, 104.5, 106.0, 107.0, 106.5, 108.0, 109.0, 108.5, 110.0, 111.0, 110.5, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0]);
+        let high = Series::new("high", &[105.0, 106.0, 107.0, 106.5, 108.0, 109.0, 108.5, 110.0, 111.0, 110.5, 112.0, 113.0, 112.5, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0]);
+        let low = Series::new("low", &[100.0, 101.0, 102.0, 101.5, 103.0, 104.0, 103.5, 105.0, 106.0, 105.5, 107.0, 108.0, 107.5, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0]);
+        let close = Series::new("close", &[103.0, 104.0, 105.0, 104.5, 106.0, 107.0, 106.5, 108.0, 109.0, 108.5, 110.0, 111.0, 110.5, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0]);
         
         let result = adx_14(&high, &low, &close).unwrap();
         
@@ -182,16 +182,16 @@ mod tests {
 
     #[test]
     fn test_adx_values_in_valid_range() {
-        let high = Series::new("high".into(), (0..30).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
-        let low = Series::new("low".into(), (0..30).map(|i| 95.0 + i as f64).collect::<Vec<_>>());
-        let close = Series::new("close".into(), (0..30).map(|i| 98.0 + i as f64).collect::<Vec<_>>());
+        let high = Series::new("high", (0..30).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..30).map(|i| 95.0 + i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..30).map(|i| 98.0 + i as f64).collect::<Vec<_>>());
         
         let result = adx_14(&high, &low, &close).unwrap();
         
         for i in 0..result.adx.len() {
             if let Some(val) = result.adx.f64().unwrap().get(i) {
                 if !val.is_nan() {
-                    assert!(val >= 0.0 && val <= 100.0, "ADX value {} at index {} out of range", val, i);
+                    assert!((0.0..=100.0).contains(&val), "ADX value {} at index {} out of range", val, i);
                 }
             }
         }

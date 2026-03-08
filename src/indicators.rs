@@ -336,7 +336,7 @@ mod tests {
     
     #[test]
     fn test_ema_20_simple_series() {
-        let close = Series::new("close".into(), &[100.0, 101.0, 102.0, 101.5, 103.0]);
+        let close = Series::new("close", &[100.0, 101.0, 102.0, 101.5, 103.0]);
         let result = ema_20(&close);
         
         assert!(result.is_ok());
@@ -346,7 +346,7 @@ mod tests {
     
     #[test]
     fn test_ema_12_simple_series() {
-        let close = Series::new("close".into(), &[100.0, 101.0, 102.0, 101.5, 103.0]);
+        let close = Series::new("close", &[100.0, 101.0, 102.0, 101.5, 103.0]);
         let result = ema_12(&close);
         
         assert!(result.is_ok());
@@ -356,7 +356,7 @@ mod tests {
     
     #[test]
     fn test_ema_50_simple_series() {
-        let close = Series::new("close".into(), &[100.0, 101.0, 102.0, 101.5, 103.0]);
+        let close = Series::new("close", &[100.0, 101.0, 102.0, 101.5, 103.0]);
         let result = ema_50(&close);
         
         assert!(result.is_ok());
@@ -366,7 +366,7 @@ mod tests {
     
     #[test]
     fn test_ema_200_simple_series() {
-        let close = Series::new("close".into(), &[100.0, 101.0, 102.0, 101.5, 103.0]);
+        let close = Series::new("close", &[100.0, 101.0, 102.0, 101.5, 103.0]);
         let result = ema_200(&close);
         
         assert!(result.is_ok());
@@ -377,7 +377,7 @@ mod tests {
     #[test]
     fn test_rsi_14_basic() {
         // Test with a simple price series
-        let close = Series::new("close".into(), &[
+        let close = Series::new("close", &[
             44.0, 44.25, 44.50, 44.75, 45.0, 
             45.25, 45.50, 45.75, 46.0, 46.25,
             46.50, 46.75, 47.0, 47.25
@@ -393,7 +393,7 @@ mod tests {
         for i in 0..rsi.len() {
             if let Some(val) = rsi.f64().unwrap().get(i) {
                 if !val.is_nan() {
-                    assert!(val >= 0.0 && val <= 100.0, "RSI value {} at index {} is out of range [0, 100]", val, i);
+                    assert!((0.0..=100.0).contains(&val), "RSI value {} at index {} is out of range [0, 100]", val, i);
                 }
             }
         }
@@ -401,7 +401,7 @@ mod tests {
     
     #[test]
     fn test_macd_basic() {
-        let close = Series::new("close".into(), &[
+        let close = Series::new("close", &[
             100.0, 101.5, 102.3, 101.8, 103.2,
             104.1, 103.5, 105.0, 106.2, 105.8,
             107.0, 106.5, 108.0, 109.2, 108.5,
@@ -419,21 +419,21 @@ mod tests {
     
     #[test]
     fn test_atr_14_basic() {
-        let high = Series::new("high".into(), &[
+        let high = Series::new("high", &[
             102.0, 103.5, 104.0, 103.5, 105.0,
             106.0, 105.5, 107.0, 108.0, 107.5,
             109.0, 108.5, 110.0, 111.0, 110.5,
             112.0, 111.5, 113.0, 112.5, 114.0
         ]);
         
-        let low = Series::new("low".into(), &[
+        let low = Series::new("low", &[
             99.0, 100.5, 101.0, 100.5, 102.0,
             103.0, 102.5, 104.0, 105.0, 104.5,
             106.0, 105.5, 107.0, 108.0, 107.5,
             109.0, 108.5, 110.0, 109.5, 111.0
         ]);
         
-        let close = Series::new("close".into(), &[
+        let close = Series::new("close", &[
             100.0, 101.5, 102.3, 101.8, 103.2,
             104.1, 103.5, 105.0, 106.2, 105.8,
             107.0, 106.5, 108.0, 109.2, 108.5,
