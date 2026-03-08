@@ -114,7 +114,7 @@ fn main() -> anyhow::Result<()> {
         high.clone(),
         low.clone(),
         close.clone(),
-        engulfing_pattern.alias("engulfing"),
+        engulfing_pattern.with_name("engulfing"),
     ])?;
     
     let bullish_signals = df

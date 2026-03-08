@@ -97,10 +97,10 @@ fn main() -> anyhow::Result<()> {
     // Building a Complete Analysis
     println!("8. Complete Analysis - Combining Multiple Indicators");
     let analysis_df = DataFrame::new(vec![
-        close.clone().alias("close"),
-        volume.clone().alias("volume"),
-        obv_values.alias("obv"),
-        roc_10.alias("roc_10"),
+        close.clone().with_name("close"),
+        volume.clone().with_name("volume"),
+        obv_values.with_name("obv"),
+        roc_10.with_name("roc_10"),
     ])?;
     
     println!("   Combined indicators DataFrame (last 3 rows):");
