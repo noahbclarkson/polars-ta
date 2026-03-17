@@ -60,3 +60,42 @@ pub fn obv(close: &Series, volume: &Series) -> Result<Series> {
     
     Ok(Series::new("obv", obv_values))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_obv_length() {
+        let close = Series::new("close", vec![100.0, 101.0, 102.0, 101.0, 103.0]);
+        let volume = Series::new("volume", vec![1000.0, 1200.0, 800.0, 900.0, 1100.0]);
+        let result = obv(&close, &volume).unwrap();
+        assert_eq!(result.len(), close.len());
+    }
+
+    #[test]
+    fn test_obv_increases_on_up_days() {
+        // All up days - OBV should keep increasing
+        let close = Series::new("close", vec![100.0, 101.0, 102.0, 103.0, 104.0]);
+        let volume = Series::new("volume", vec![1000.0; 5]);
+        let result = obv(&close, &volume).unwrap();
+        let vals = result.f64().unwrap();
+
+        let first = vals.get(1).unwrap();
+        let last = vals.get(4).unwrap();
+        assert!(last > first, "OBV should increase on all up days");
+    }
+
+    #[test]
+    fn test_obv_decreases_on_down_days() {
+        // All down days - OBV should decrease
+        let close = Series::new("close", vec![105.0, 104.0, 103.0, 102.0, 101.0]);
+        let volume = Series::new("volume", vec![1000.0; 5]);
+        let result = obv(&close, &volume).unwrap();
+        let vals = result.f64().unwrap();
+
+        let first = vals.get(1).unwrap();
+        let last = vals.get(4).unwrap();
+        assert!(last < first, "OBV should decrease on all down days");
+    }
+}

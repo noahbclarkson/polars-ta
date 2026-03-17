@@ -90,3 +90,60 @@ pub fn rsi(series: &Series, period: usize) -> Result<Series> {
 pub fn rsi_14(series: &Series) -> Result<Series> {
     rsi(series, 14)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_rsi_length() {
+        let prices: Vec<f64> = (1..=30).map(|x| x as f64).collect();
+        let series = Series::new("close", prices);
+        let result = rsi(&series, 14).unwrap();
+        assert_eq!(result.len(), series.len());
+    }
+
+    #[test]
+    fn test_rsi_range() {
+        let prices: Vec<f64> = (1..=50).map(|x| (x as f64 * 1.7).sin() * 10.0 + 100.0).collect();
+        let series = Series::new("close", prices);
+        let result = rsi(&series, 14).unwrap();
+        let vals = result.f64().unwrap();
+
+        for i in 0..vals.len() {
+            if let Some(v) = vals.get(i) {
+                if !v.is_nan() {
+                    assert!(v >= 0.0 && v <= 100.0, "RSI must be in [0, 100], got {}", v);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_rsi_uptrend_high() {
+        // Strict uptrend should produce high RSI
+        let prices: Vec<f64> = (1..=30).map(|x| x as f64 * 2.0).collect();
+        let series = Series::new("close", prices);
+        let result = rsi(&series, 14).unwrap();
+        let vals = result.f64().unwrap();
+
+        let last = vals.get(vals.len() - 1).unwrap();
+        assert!(last > 70.0, "RSI should be > 70 in strong uptrend, got {}", last);
+    }
+
+    #[test]
+    fn test_rsi_14_matches_rsi_with_14() {
+        let prices: Vec<f64> = (1..=30).map(|x| x as f64).collect();
+        let series = Series::new("close", prices);
+
+        let result_14 = rsi_14(&series).unwrap();
+        let result_explicit = rsi(&series, 14).unwrap();
+
+        let v1 = result_14.f64().unwrap();
+        let v2 = result_explicit.f64().unwrap();
+
+        let last1 = v1.get(v1.len() - 1).unwrap();
+        let last2 = v2.get(v2.len() - 1).unwrap();
+        assert!((last1 - last2).abs() < 0.001, "rsi_14 should match rsi(14)");
+    }
+}
