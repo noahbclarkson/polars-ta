@@ -98,3 +98,63 @@ pub fn bollinger(series: &Series, period: usize, std_dev: f64) -> Result<Bolling
 pub fn bollinger_20_2(series: &Series) -> Result<BollingerResult> {
     bollinger(series, 20, 2.0)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_bollinger_length() {
+        let prices: Vec<f64> = (1..=30).map(|x| x as f64).collect();
+        let series = Series::new("close", prices);
+        let result = bollinger(&series, 20, 2.0).unwrap();
+        assert_eq!(result.upper.len(), series.len());
+        assert_eq!(result.middle.len(), series.len());
+        assert_eq!(result.lower.len(), series.len());
+    }
+
+    #[test]
+    fn test_bollinger_upper_above_lower() {
+        let prices: Vec<f64> = (1..=30).map(|x| (x as f64 * 0.8).sin() * 5.0 + 100.0).collect();
+        let series = Series::new("close", prices);
+        let result = bollinger_20_2(&series).unwrap();
+
+        let upper = result.upper.f64().unwrap();
+        let lower = result.lower.f64().unwrap();
+
+        for i in 20..upper.len() {
+            let u = upper.get(i).unwrap();
+            let l = lower.get(i).unwrap();
+            assert!(u > l, "Upper band must be above lower band at index {}", i);
+        }
+    }
+
+    #[test]
+    fn test_bollinger_middle_is_sma() {
+        let prices = vec![100.0; 25]; // constant
+        let series = Series::new("close", prices);
+        let result = bollinger_20_2(&series).unwrap();
+
+        let middle = result.middle.f64().unwrap();
+        let val = middle.get(24).unwrap();
+        assert!((val - 100.0).abs() < 0.01, "Middle band should equal SMA for constant series");
+    }
+
+    #[test]
+    fn test_bollinger_constant_series_bands_equal() {
+        let prices = vec![50.0; 25];
+        let series = Series::new("close", prices);
+        let result = bollinger_20_2(&series).unwrap();
+
+        let upper = result.upper.f64().unwrap();
+        let lower = result.lower.f64().unwrap();
+        let middle = result.middle.f64().unwrap();
+
+        // Constant price: std dev = 0, so all three bands equal
+        let u = upper.get(24).unwrap();
+        let l = lower.get(24).unwrap();
+        let m = middle.get(24).unwrap();
+        assert!((u - m).abs() < 0.01, "Upper and middle should be equal for constant series");
+        assert!((l - m).abs() < 0.01, "Lower and middle should be equal for constant series");
+    }
+}
