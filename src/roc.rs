@@ -45,3 +45,40 @@ pub fn roc(series: &Series, period: usize) -> Result<Series> {
     
     Ok(result.column("roc")?.clone())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_roc_length() {
+        let series = Series::new("close", (1..=20).map(|x| x as f64).collect::<Vec<_>>());
+        let result = roc(&series, 10).unwrap();
+        assert_eq!(result.len(), series.len());
+    }
+
+    #[test]
+    fn test_roc_positive_in_uptrend() {
+        let prices: Vec<f64> = (1..=20).map(|x| x as f64 * 2.0).collect();
+        let series = Series::new("close", prices);
+        let result = roc(&series, 5).unwrap();
+        let vals = result.f64().unwrap();
+
+        for i in 5..vals.len() {
+            let v = vals.get(i).unwrap();
+            assert!(v > 0.0, "ROC should be positive in uptrend at index {}, got {}", i, v);
+        }
+    }
+
+    #[test]
+    fn test_roc_zero_for_constant() {
+        let series = Series::new("close", vec![100.0; 20]);
+        let result = roc(&series, 5).unwrap();
+        let vals = result.f64().unwrap();
+
+        for i in 5..vals.len() {
+            let v = vals.get(i).unwrap();
+            assert!(v.abs() < 0.001, "ROC should be 0 for constant series, got {}", v);
+        }
+    }
+}
