@@ -167,31 +167,86 @@ pub fn adx_14(high: &Series, low: &Series, close: &Series) -> Result<AdxResult> 
 mod tests {
     use super::*;
 
+    fn make_trending_data(n: usize) -> (Series, Series, Series) {
+        let high = Series::new("high", (0..n).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
+        let low = Series::new("low", (0..n).map(|i| 95.0 + i as f64).collect::<Vec<_>>());
+        let close = Series::new("close", (0..n).map(|i| 98.0 + i as f64).collect::<Vec<_>>());
+        (high, low, close)
+    }
+
     #[test]
     fn test_adx_returns_correct_length() {
-        let high = Series::new("high", &[105.0, 106.0, 107.0, 106.5, 108.0, 109.0, 108.5, 110.0, 111.0, 110.5, 112.0, 113.0, 112.5, 114.0, 115.0, 116.0, 117.0, 118.0, 119.0, 120.0]);
-        let low = Series::new("low", &[100.0, 101.0, 102.0, 101.5, 103.0, 104.0, 103.5, 105.0, 106.0, 105.5, 107.0, 108.0, 107.5, 109.0, 110.0, 111.0, 112.0, 113.0, 114.0, 115.0]);
-        let close = Series::new("close", &[103.0, 104.0, 105.0, 104.5, 106.0, 107.0, 106.5, 108.0, 109.0, 108.5, 110.0, 111.0, 110.5, 112.0, 113.0, 114.0, 115.0, 116.0, 117.0, 118.0]);
-        
+        let (high, low, close) = make_trending_data(20);
         let result = adx_14(&high, &low, &close).unwrap();
-        
-        assert_eq!(result.adx.len(), close.len());
-        assert_eq!(result.plus_di.len(), close.len());
-        assert_eq!(result.minus_di.len(), close.len());
+        assert_eq!(result.adx.len(), 20);
+        assert_eq!(result.plus_di.len(), 20);
+        assert_eq!(result.minus_di.len(), 20);
     }
 
     #[test]
     fn test_adx_values_in_valid_range() {
-        let high = Series::new("high", (0..30).map(|i| 100.0 + i as f64).collect::<Vec<_>>());
-        let low = Series::new("low", (0..30).map(|i| 95.0 + i as f64).collect::<Vec<_>>());
-        let close = Series::new("close", (0..30).map(|i| 98.0 + i as f64).collect::<Vec<_>>());
-        
+        let (high, low, close) = make_trending_data(30);
         let result = adx_14(&high, &low, &close).unwrap();
-        
+
         for i in 0..result.adx.len() {
             if let Some(val) = result.adx.f64().unwrap().get(i) {
                 if !val.is_nan() {
                     assert!((0.0..=100.0).contains(&val), "ADX value {} at index {} out of range", val, i);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_adx_custom_period() {
+        let (high, low, close) = make_trending_data(25);
+        let result = adx(&high, &low, &close, 7).unwrap();
+        assert_eq!(result.adx.len(), 25);
+    }
+
+    #[test]
+    fn test_adx_di_values_in_valid_range() {
+        let (high, low, close) = make_trending_data(30);
+        let result = adx_14(&high, &low, &close).unwrap();
+
+        for i in 0..result.plus_di.len() {
+            if let Some(val) = result.plus_di.f64().unwrap().get(i) {
+                if !val.is_nan() {
+                    assert!(val >= 0.0, "+DI should be non-negative, got {}", val);
+                }
+            }
+            if let Some(val) = result.minus_di.f64().unwrap().get(i) {
+                if !val.is_nan() {
+                    assert!(val >= 0.0, "-DI should be non-negative, got {}", val);
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_adx_uptrend_plus_di_dominates() {
+        // In a true uptrend (highs expanding more than lows), +DI > -DI
+        // Use data where high rises more than low (e.g. candles that expand upward)
+        let n = 40;
+        let high: Vec<f64> = (0..n).map(|i| 100.0 + i as f64 * 2.0).collect();
+        let low: Vec<f64> = (0..n).map(|i| 95.0 + i as f64).collect(); // slower rising
+        let close: Vec<f64> = (0..n).map(|i| 98.0 + i as f64 * 1.8).collect();
+
+        let h = Series::new("high", high);
+        let l = Series::new("low", low);
+        let c = Series::new("close", close);
+        let result = adx_14(&h, &l, &c).unwrap();
+
+        let nn = result.plus_di.len();
+        let plus_di_ca = result.plus_di.f64().unwrap();
+        let minus_di_ca = result.minus_di.f64().unwrap();
+
+        // Check the last valid value
+        for i in (0..nn).rev() {
+            if let (Some(plus), Some(minus)) = (plus_di_ca.get(i), minus_di_ca.get(i)) {
+                if !plus.is_nan() && !minus.is_nan() && (plus > 0.0 || minus > 0.0) {
+                    assert!(plus > minus, "+DI ({}) should exceed -DI ({}) in an uptrend", plus, minus);
+                    break;
                 }
             }
         }
