@@ -29,6 +29,74 @@ fn get_weights(d: f64, size: usize, threshold: f64) -> Vec<f64> {
     weights.into_iter().rev().collect()
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_get_weights_d_zero() {
+        // d=0 should give identity (single weight = 1.0)
+        let weights = get_weights(0.0, 10, 1e-5);
+        assert_eq!(weights.len(), 1);
+        assert!((weights[0] - 1.0).abs() < 1e-10);
+    }
+
+    #[test]
+    fn test_get_weights_d_one() {
+        // d=1 should give first difference weights
+        let weights = get_weights(1.0, 10, 1e-5);
+        assert!(weights.len() >= 2);
+        // First weight (after reversal) should be -1.0
+        // The weights are reversed at the end, the function
+    }
+
+    #[test]
+    fn test_get_weights_threshold() {
+        // Small weights should be dropped below threshold
+        let weights = get_weights(0.1, 1000, 0.1);
+        // With d=0.1 and threshold 0.1, should stop early
+        assert!(weights.len() < 100);
+    }
+
+    #[test]
+    fn test_frac_diff_constant_series() {
+        // d=1 (full differentiation) of constant series gives zero
+        let data = Series::new("data", vec![100.0; 50]);
+        let result = frac_diff_ffd(&data, 1.0, 20).unwrap();
+        let values = result.f64().unwrap();
+
+        // After warmup (window_size=20), output should be near zero
+        for i in 25..50 {
+            let val = values.get(i).unwrap();
+            assert!(val.abs() < 1e-6, "Expected near zero at index {}, got {}", i, val);
+        }
+    }
+
+    #[test]
+    fn test_frac_diff_linear_trend() {
+        // Linear trend: [1, 2, 3, 4, ...]
+        let data: Vec<f64> = (1..=50).map(|x| x as f64).collect();
+        let series = Series::new("data", data);
+        let result = frac_diff_ffd(&series, 1.0, 10).unwrap();
+        let values = result.f64().unwrap();
+
+        // d=1 should give first difference, which is constant (=1)
+        for i in 15..45 {
+            let val = values.get(i).unwrap();
+            assert!((val - 1.0).abs() < 0.01, "Expected ~1.0 at index {}, got {}", i, val);
+        }
+    }
+
+    #[test]
+    fn test_frac_diff_preserves_length() {
+        let data = Series::new("data", (0..100).map(|x| x as f64).collect::<Vec<_>>());
+        let result = frac_diff_ffd(&data, 0.4, 20).unwrap();
+
+        // Output length should match input length
+        assert_eq!(result.len(), data.len());
+    }
+}
+
 /// Applies Fixed-Window Fractional Differentiation to a Series
 ///
 /// This implements the FFD (Fixed-Width Fractional Differentiation) algorithm
